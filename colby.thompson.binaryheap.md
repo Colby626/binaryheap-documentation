@@ -1,22 +1,118 @@
 # Binary Heap Documentation
+
 ## OVERVIEW
 
-Briefly define the data structure and hint at why a programmer might care about it. For example, an overview of a linked list might look like: 
-
-"A linked list is a data structure that is easy implement and is useful for storing sequences of objects for which the max number of objects is unknown or varies frequently. Linked lists are often used as a basis for implementing more complex data structures. This document explains the basics of implementing a linked list in C++ and provides an example Visual Studio solution."
-
-## HOW DOES IT WORK?
-
-This section explains in detail how the data structure works and how someone might go about implementing it in real code. If the student is writing about an existing STL implementation, this section still explains how the data structure works but focuses on the STL API instead of implementation details. This section should most likely be a mixture of natural language as well as short code snippets. Students should feel free to create diagrams if they would illustrate your point well. The tutorial should refer to the example code in the repository where appropriate. In short, the author should do whatever he or she feels is most appropriate to convey the information in an effective and interesting way. 
-
-Students do not necessarily need to describe time and memory complexity for the data structure (Big-O notation), but that may be helpful in the description depending on your approach. It will likely be difficult to give a complete picture of the data structure without explaining (at least casually) the time complexity of adding, removing, and accessing elements.
+A binary heap is a data structure similar to the binary tree but has 2 additional properties. 
+- It must be a complete binary tree, meaning that there are no gaps anywhere on the tree. Every row must be completely filled except for possibly the bottom row, but if it is only partially filled, must be filled from left to right. 
+- It must either be a min-heap or a max-heap. Min-heap means that for any given node in the tree, all nodes below it are larger. Max-heap means that for any given node in the tree, all nodes below it are smaller. For the rest of this document, it will be referring to a max-heap, but every part would apply the same but just as the smaller values or minimum values instead of larger or maximum ones. 
+Binary heaps are important because they are an effective foundation for a priority queue and heap sort. This document will explain the reasons to implement one and how to do so. 
 
 ## HOW IS THIS DATA STRUCTURE USEFUL?
 
-What sorts of data is this structure commonly used for? Why is it a better solution for certain applications than similar data structures? This section should discuss these generalities but also describe at least one specific example of an appropriate usage (For example, queues are ideal for handling OS input events such as key presses and mouse movements in the order the user makes them). 
+Due to binary heaps being complete binary trees, they are easy to represent as an array. There are also useful formulas for finding a parent node's left and right children within the array. Assuming the root node of the binary heap is array index 0 and the index of the other nodes are counted down like this:
+
+- (i-1)/2 will return i's parent node. 
+- (i\*2)+1 will return i's left child
+- (i\*2)+2 will return i's right child
+This system makes it extremely easy to remove items with the highest priority in a max-heap or lowest priority if it is a min-heap. 
+
+The binary heap is especially efficient when it comes to deleting the maximum in a max-heap or minimum in a min-heap. When compared to a linked list or array, these are the Big-O values for different functions from Carnegie Mellon: 
+ 
+  insert  
+ deleteMax  
+  remove  
+  findMax  
+ ordered array
+ O(n)
+ O(1)
+ O(n)
+ O(1)
+ ordered list
+ O(n)
+ O(1)
+ O(1)
+ O(1)
+ unordered array
+ O(1)
+ O(n)
+ O(1)
+ O(n)
+ unordered list
+ O(1)
+ O(n)
+ O(1)
+ O(n)
+ binary heap
+ O(log n)
+ O(log n)
+ O(log n)
+ O(1)
+
+
+The binary heap may not have the same efficiency for insertion or removal compared to the other options, but it is still really fast at O(log n), but it beat the rest at deleting the maximum. That speed makes it tremendously effective when implementing a priority queue where priority ranks are put in as the value of the nodes. 
+
+## HOW DOES IT WORK?
+
+###Insertion 
+When a new number is inserted it is put on the end of the array or the bottom-most / left-most location on the binary tree, it gets compared to its parent to see if it breaks the rules of a binary heap by either being too large or too small. If it does break the rules, it is swapped with its parent. It then rechecks its new parent if it has any, and so on and so forth until it doesn't break the rules anymore. The node that it swaps with will never break the rules in the new location because the ones underneath that one are already smaller or larger than it is. 
+
+This process is shown through these images from Wikipedia where 15 is inserted into a max-heap:
+
+
+
+
+
+###Deletion 
+Traverse the array to find the index of the element you want to be deleted. Swap that element with the last element in the array and heapify it as discussed in the insertion. Then it can be safely removed. 
+
+###DeleteMax 
+The root node is removed and the lowest / rightmost node replaces the root node of the binary heap. Then, it checks its children to see if it is larger than them. If not, it swaps with the larger of the two children and then checks its new children. It does this until the binary heap follows the rules again. The things it is swapping with will never break the rules where they move to because it picks the larger of the two children to swap with, making deleting the maximum value take just as long as insertion. 
+
+These images from Wikipedia show what this would look like in a max-heap where DeleteMax is called:
+
+
+
+
+
+
+###Demonstration
+The binary heap is a standard template library or STL for C++. GeekforGeeks demonstrates this code use well in the program below. 
+
+// C++ program to show that priority_queue is by
+// default a Max Heap
+#include <bits/stdc++.h>
+using namespace std;
+  
+// Driver code
+int main ()
+{
+    // Creates a max heap
+    priority_queue <int> pq;
+    pq.push(5);
+    pq.push(1);
+    pq.push(10);
+    pq.push(30);
+    pq.push(20);
+  
+    // One by one extract items from max heap
+    while (pq.empty() == false)
+    {
+        cout << pq.top() << " ";
+        pq.pop();
+    }
+  
+    return 0;
+}
+
+That outputs
+30 20 10 5 1
 
 ## FURTHER READING
 
-Students should cite any sources they used in preparing this tutorial (with inline citations in the text, as appropriate). It is okay to base an implementation on an existing one as long as the student makes significant changes to the code and properly credits the source. This section may also include recommendations for other sources the reader may find helpful. These sources can be URLs or traditional Works Cited entries for published material.
+Carnegie Mellon https://www.andrew.cmu.edu/course/15-121/lectures/Binary%20Heaps/heaps.html#:~:text=Since%20a%20heap%20is%20a,to%20implement%20a%20priority%20queue. 
 
-It is important to correctly cite the sources used. It is okay to look at other code. It is not okay to turn in other people's code and misrepresent it as your own.
+GeeksforGeeks https://www.geeksforgeeks.org/implement-min-heap-using-stl/ 
+
+Research Gate https://www.researchgate.net/figure/Numbering-of-nodes-in-a-fully-populated-binary-tree-with-L-3-levels-The-root-is-the_fig1_317356628 
+  
+Wikipedia https://en.wikipedia.org/wiki/Binary_heap 
